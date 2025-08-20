@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OneNote風メモ帳</title>
+     <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- ヘッダー（青色、常に表示、セクション名を中央に表示） -->
+    <div class="header" id="header">
+        <!-- パネル切り替えボタン（左端に配置） -->
+        <button class="header-toggle-btn" onclick="togglePanel()" id="header-toggle-btn">◀</button>
+            <span id="header-title">セクションを選択してください</span>
+
+    <!-- 保存ボタン -->
+    <button id="save-btn" onclick="downloadData()" style="position:absolute; right:120px; background:rgba(255,255,255,0.2); border:none; color:white; width:60px; height:40px; border-radius:4px; cursor:pointer;">
+        保存
+    </button>
+
+    <!-- 読み込みボタン -->
+    <label id="load-btn" style="position:absolute; right:40px; background:rgba(255,255,255,0.2); color:white; padding:10px 15px; border-radius:4px; cursor:pointer;">
+        読込
+        <input type="file" accept=".json" style="display:none;" onchange="uploadData(this.files[0])">
+    </label>
+    </div>
+
+    <div class="app-container">
+        <!-- セクション一覧パネル（灰色背景） -->
+        <div class="sections-panel" id="sections-panel">
+            <div class="sections-header">
+                <div class="sections-title">セクション</div>
+                <!-- セクション追加ボタン（右端に配置） -->
+                <button class="add-section-btn" onclick="showAddSectionModal()">+</button>
+            </div>
+            <!-- セクションのリスト表示エリア -->
+            <div class="sections-list" id="sections-list"></div>
+        </div>
+
+        <!-- ノート一覧パネル（セクション選択時に表示） -->
+        <div class="notes-panel" id="notes-panel">
+            <div class="notes-header">
+                <!-- セクション一覧に戻るボタン -->
+                <button class="back-btn" onclick="backToSections()">←</button>
+                <div class="notes-title" id="notes-title">ノート一覧</div>
+            </div>
+            <!-- ノートのリスト表示エリア -->
+            <div class="notes-list" id="notes-list"></div>
+        </div>
+
+        <!-- ページ部分（白背景、黒文字） -->
+        <div class="page-container">
+            <!-- 空の状態表示（セクション未選択時） -->
+            <div id="empty-state" class="empty-state">
+                <div class="empty-state-icon">📝</div>
+                <div>セクションを選択してメモを開始</div>
+            </div>
+            
+            <!-- メモの表示エリア -->
+            <div id="page-content" class="page-content" style="display: none;">
+                <div class="notes-display" id="notes-display"></div>
+            </div>
+
+            <!-- 入力エリア（カテゴリと内容の入力、ページ下部に配置） -->
+            <div id="input-area" class="input-area" style="display: none;">
+                <div class="input-row">
+                    <div class="input-label">カテゴリ:</div>
+                    <input type="text" class="input-field" id="category-input" placeholder="カテゴリを入力">
+                </div>
+                <div class="input-row">
+                    <div class="input-label">内容:</div>
+                    <textarea class="input-field content-input" id="content-input" placeholder="内容を入力"></textarea>
+                </div>
+                <!-- 追加ボタン（右寄せ） -->
+                <button class="add-btn" onclick="addNote()" id="add-btn">追加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- コンテキストメニュー（右クリックで表示される削除メニュー） -->
+    <div class="context-menu" id="context-menu">
+        <div class="context-menu-item danger" onclick="deleteCurrentItem()">削除</div>
+    </div>
+
+    <!-- セクション作成モーダル -->
+    <div class="modal" id="section-modal">
+        <div class="modal-content">
+            <div class="modal-title">新しいセクション</div>
+            <input type="text" id="section-name" placeholder="セクション名を入力">
+            <div class="modal-buttons">
+                <button class="secondary" onclick="hideModal('section-modal')">キャンセル</button>
+                <button class="primary" onclick="addSection()">作成</button>
+            </div>
+        </div>
+    </div>
+
+   <script src="script.js"></script>
+</body>
+</html>
+                

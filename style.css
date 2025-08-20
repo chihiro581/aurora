@@ -1,0 +1,526 @@
+ 
+        /* === 基本設定 === */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+
+        /* === ヘッダー（青色、常に表示） === */
+        .header {
+            height: 60px;
+            background: #0078d4; /* OneNote風の青色 */
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 600;
+            position: fixed; /* 常に上部に固定 */
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000; /* 他の要素より前面に表示 */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ヘッダー内のパネル切り替えボタン */
+        .header-toggle-btn {
+            position: absolute;
+            left: 20px; /* ヘッダーの左端に配置 */
+            background: rgba(255, 255, 255, 0.2); /* 半透明の白背景 */
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.3); /* ホバー時に少し明るく */
+        }
+
+        /* === メインコンテナ（ヘッダー直下から開始） === */
+        .app-container {
+            display: flex;
+            height: 100vh; /* 画面全体の高さ */
+        }
+
+        /* === セクション一覧パネル（灰色背景） === */
+        .sections-panel {
+            width: 300px;
+            background: #e6e6e6; /* 灰色系の背景 */
+            border-right: 1px solid #d1d1d1;
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s ease; /* スライドアニメーション */
+            padding-top: 60px; /* ヘッダー分の上部スペース */
+        }
+
+        /* パネルが隠れている状態 */
+        .sections-panel.hidden {
+            margin-left: -300px; /* 左に300px移動して隠す */
+         } 
+
+        /* セクションパネルのヘッダー部分 */
+        .sections-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #d1d1d1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #e6e6e6;
+        }
+
+        .sections-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #323130;
+        }
+
+        /* セクション追加ボタン（右端に配置） */
+        .add-section-btn {
+            background: #0078d4;
+            border: none;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .add-section-btn:hover {
+            background: #106ebe; /* ホバー時に少し暗く */
+        }
+
+        /* セクションのリスト表示エリア */
+        .sections-list {
+            flex: 1;
+            overflow-y: auto; /* スクロール可能 */
+            padding: 10px;
+        }
+
+        /* 各セクションのアイテム */
+        .section-item {
+            padding: 15px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .section-item:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px); /* ホバー時に少し浮き上がる */
+        }
+
+        .section-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #323130;
+        }
+
+        /* セクションのコンテキストメニューボタン */
+        .section-menu {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 4px;
+            font-size: 16px;
+            opacity: 0; /* 通常時は非表示 */
+            transition: opacity 0.2s;
+        }
+
+        .section-item:hover .section-menu {
+            opacity: 1; /* ホバー時に表示 */
+        }
+
+        .section-menu:hover {
+            color: #0078d4;
+        }
+
+        /* === コンテキストメニュー（右クリックメニュー） === */
+        .context-menu {
+            position: absolute;
+            background: white;
+            border: 1px solid #d1d1d1;
+            border-radius: 4px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            min-width: 120px;
+            display: none; /* 通常時は非表示 */
+        }
+
+        .context-menu.show {
+            display: block; /* 表示時 */
+        }
+
+        .context-menu-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #323130;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .context-menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .context-menu-item:hover {
+            background: #f5f5f5;
+        }
+
+        .context-menu-item.danger {
+            color: #d13438; /* 削除ボタンは赤色 */
+        }
+
+        .context-menu-item.danger:hover {
+            background: #fdf2f2;
+        }
+
+        /* === ノート一覧パネル === */
+        .notes-panel {
+            width: 300px;
+            background: #f8f8f8;
+            border-right: 1px solid #d1d1d1;
+            display: none; /* 通常時は非表示 */
+            flex-direction: column;
+            padding-top: 60px; /* ヘッダー分の上部スペース */
+        }
+
+        .notes-panel.show {
+            display: flex; /* 表示時 */
+        }
+
+        /* ノートパネルのヘッダー部分 */
+        .notes-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #d1d1d1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8f8f8;
+        }
+
+        /* セクション一覧に戻るボタン */
+        .back-btn {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px;
+            margin-right: 10px;
+        }
+
+        .back-btn:hover {
+            color: #0078d4;
+        }
+
+        .notes-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #323130;
+            flex: 1;
+        }
+
+        /* ノートのリスト表示エリア */
+        .notes-list {
+            flex: 1;
+            overflow-y: auto; /* スクロール可能 */
+            padding: 10px;
+        }
+
+        /* 各ノートのアイテム */
+        .note-item {
+            padding: 15px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #0078d4; /* 左側にカラーバー */
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .note-item:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .note-category {
+            font-size: 14px;
+            font-weight: 600;
+            color: #323130;
+            margin-bottom: 5px;
+        }
+
+        .note-content {
+            font-size: 12px;
+            color: #605e5c;
+            line-height: 1.4;
+        }
+
+        .note-date {
+            font-size: 10px;
+            color: #8a8886;
+            margin-top: 5px;
+        }
+
+        /* ノートのコンテキストメニューボタン */
+        .note-menu {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 4px;
+            font-size: 16px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .note-item:hover .note-menu {
+            opacity: 1;
+        }
+
+        .note-menu:hover {
+            color: #0078d4;
+        }
+
+        /* === ページ部分（白背景、黒文字） === */
+        .page-container {
+            flex: 1;
+            background: white; /* 白背景 */
+            display: flex;
+            flex-direction: column;
+            padding-top: 60px; /* ヘッダー分の上部スペース */
+        }
+
+        /* ページのメインコンテンツエリア */
+        .page-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto; /* スクロール可能 */
+        }
+
+        /* メモの表示エリア */
+        .notes-display {
+            margin-bottom: 20px;
+        }
+
+        /* カテゴリごとのグループ */
+        .category-group {
+            margin-bottom: 30px;
+        }
+
+        /* カテゴリのタイトル */
+        .category-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #323130; /* 黒文字 */
+            border-bottom: 2px solid #0078d4;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+
+        /* 個別のメモエントリー */
+        .note-entry {
+            background: #f9f9f9;
+            border-left: 4px solid #0078d4;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        .note-entry-content {
+            font-size: 14px;
+            color: #323130; /* 黒文字 */
+            line-height: 1.5;
+            white-space: pre-wrap; /* 改行を保持 */
+        }
+
+        .note-entry-date {
+            font-size: 11px;
+            color: #8a8886;
+            margin-top: 8px;
+            text-align: right;
+        }
+
+        /* === 入力エリア（ページ下部） === */
+        .input-area {
+            background: #f8f8f8;
+            border-top: 2px solid #e6e6e6;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #323130;
+            min-width: 80px;
+        }
+
+        /* 入力フィールド */
+        .input-field {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #d1d1d1;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #0078d4;
+            box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.2);
+        }
+
+        /* 内容入力用のテキストエリア */
+        .content-input {
+            min-height: 80px;
+            resize: vertical; /* 縦方向のリサイズ可能 */
+        }
+
+        /* 追加ボタン */
+        .add-btn {
+            background: #0078d4;
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            align-self: flex-end; /* 右寄せ */
+        }
+
+        .add-btn:hover {
+            background: #106ebe;
+        }
+
+        .add-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* === モーダルダイアログ === */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* 半透明の黒背景 */
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1002;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            width: 400px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #323130;
+        }
+
+        .modal input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d1d1;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .modal button {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: 1px solid #d1d1d1;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .modal .primary {
+            background: #0078d4;
+            color: white;
+            border-color: #0078d4;
+        }
+
+        .modal .secondary {
+            background: white;
+            color: #323130;
+        }
+
+        /* === 空の状態表示 === */
+        .empty-state {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #8a8886;
+            font-size: 16px;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
